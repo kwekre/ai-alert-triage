@@ -1,0 +1,77 @@
+[
+  {
+    "id": "g1",
+    "alert": {"module": "http", "method": "GET", "uri": "/item?id=1'", "status": 500, "resp_snippet": "You have an error in your SQL syntax"},
+    "expected": {"verdict": "true", "technique": "SQLi", "ioc": ["id=1'"], "attack_mapping": "T1190"}
+  },
+  {
+    "id": "g2",
+    "alert": {"module": "http", "method": "GET", "uri": "/item?id=1+UNION+SELECT+password+FROM+users--", "status": 200, "resp_snippet": "admin:5f4dcc3b5aa765d61d8327deb882cf99"},
+    "expected": {"verdict": "true", "technique": "SQLi", "ioc": ["UNION SELECT"], "attack_mapping": "T1190"}
+  },
+  {
+    "id": "g3",
+    "alert": {"module": "http", "method": "GET", "uri": "/search?q=<script>alert(1)</script>", "status": 200, "resp_snippet": "<p>q=<script>alert(1)</script></p>"},
+    "expected": {"verdict": "true", "technique": "XSS", "ioc": ["<script>"], "attack_mapping": "T1059.007"}
+  },
+  {
+    "id": "g4",
+    "alert": {"module": "http", "method": "GET", "uri": "/fetch?url=http://169.254.169.254/latest/meta-data/", "status": 200, "resp_snippet": "ami-id: mock-instance"},
+    "expected": {"verdict": "true", "technique": "SSRF", "ioc": ["169.254.169.254"], "attack_mapping": "T1190"}
+  },
+  {
+    "id": "g5",
+    "alert": {"module": "http", "method": "GET", "uri": "/p?name=test;echo PRBCMD7Z9", "status": 200, "resp_snippet": "result=PRBCMD7Z9"},
+    "expected": {"verdict": "true", "technique": "CommandInjection", "ioc": ["PRBCMD7Z9"], "attack_mapping": "T1059.003"}
+  },
+  {
+    "id": "g6",
+    "alert": {"module": "http", "method": "GET", "uri": "/file?name=../../../../etc/passwd", "status": 200, "resp_snippet": "root:x:0:0:root:/root:/bin/bash"},
+    "expected": {"verdict": "true", "technique": "PathTraversal", "ioc": ["../../etc/passwd"], "attack_mapping": "T1190"}
+  },
+  {
+    "id": "g7",
+    "alert": {"module": "http", "method": "GET", "uri": "/go?next=https://evil.example.com/", "status": 302, "location": "https://evil.example.com/"},
+    "expected": {"verdict": "true", "technique": "OpenRedirect", "ioc": ["evil.example.com"], "attack_mapping": "T1499"}
+  },
+  {
+    "id": "g8",
+    "alert": {"module": "http", "method": "POST", "uri": "/upload", "status": 200, "resp_snippet": "uploads/shell.php accessible", "note": "webshell uploaded"},
+    "expected": {"verdict": "true", "technique": "UploadWebshell", "ioc": ["shell.php"], "attack_mapping": "T1505.003"}
+  },
+  {
+    "id": "g9",
+    "alert": {"module": "zeek-conn", "src": "INT_10_0_0_5", "dport": 445, "note": "SMB to 30 hosts in 1 min from one workstation"},
+    "expected": {"verdict": "true", "technique": "LateralSMB", "ioc": ["INT_10_0_0_5"], "attack_mapping": "T1021.002"}
+  },
+  {
+    "id": "g10",
+    "alert": {"module": "dns", "query": "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6.int.corp-internal.test", "qtype": "TXT", "note": "long random subdomain, high frequency"},
+    "expected": {"verdict": "true", "technique": "DNSTunnel", "ioc": ["int.corp-internal.test"], "attack_mapping": "T1071.004"}
+  },
+  {
+    "id": "g11",
+    "alert": {"module": "zeek-conn", "src": "INT_10_0_0_7", "dst": "EXT_1_1_1_1", "note": "TLS beacon: fixed 60s interval, short duration, new domain"},
+    "expected": {"verdict": "true", "technique": "C2Beacon", "ioc": ["EXT_1_1_1_1"], "attack_mapping": "T1071.001"}
+  },
+  {
+    "id": "g12",
+    "alert": {"module": "mail", "mail_from": "fin-notice@okpay-test.top", "mail_auth": "spf=fail dkim=fail dmarc=fail", "mail_subject": "URGENT salary verify", "mail_attachment": "payroll_q3.docm", "mail_mac": "AutoOpen -> IEX((New-Object Net.WebClient).DownloadString)"},
+    "expected": {"verdict": "true", "technique": "Phishing", "ioc": ["okpay-test.top"], "attack_mapping": "T1566.001"}
+  },
+  {
+    "id": "g13",
+    "alert": {"module": "http", "method": "POST", "uri": "/login", "status": 200, "req_body": "<redacted-creds>", "note": "repeated successful login"},
+    "expected": {"verdict": "false", "technique": "BenignAuth", "ioc": [], "attack_mapping": ""}
+  },
+  {
+    "id": "g14",
+    "alert": {"module": "http", "method": "GET", "uri": "/assets/app.js", "status": 200, "resp_snippet": "function init(){...}"},
+    "expected": {"verdict": "false", "technique": "BenignAsset", "ioc": [], "attack_mapping": ""}
+  },
+  {
+    "id": "g15",
+    "alert": {"module": "dns", "query": "www.example.com", "qtype": "A", "note": "single benign lookup"},
+    "expected": {"verdict": "needs_more_data", "technique": "Unknown", "ioc": [], "attack_mapping": ""}
+  }
+]
