@@ -70,6 +70,7 @@ L5 工程      12 构建 AI 研判工作流 · 13 私有化与本地部署 · 14
 - `scripts/desensitize.py`：日志脱敏（私有/公网 IP、邮箱、凭证、云/API Key、域名 -> 占位符），喂 AI 前用（第 06 章）
 - `scripts/triage_cluster.py`：告警聚类降噪，按来源 IP 聚成“事件”、按可疑度排 Top-K（第 07 章）
 - `scripts/golden_eval.py`：黄金集评测。默认用内置**规则研判器**全离线跑通（15/15）；设置 `OPENAI_BASE_URL` 即切换为本地/兼容 LLM 研判器（第 13/14 章）
+- 环境怎么配（本地 Ollama / 云 API Key，跨平台通用）：见 `docs/环境配置.md`
 
 ```powershell
 python scripts/golden_eval.py                  # 默认规则研判器，全离线，输出 precision/recall
