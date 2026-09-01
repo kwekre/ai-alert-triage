@@ -60,6 +60,27 @@ L5 工程      12 构建 AI 研判工作流 · 13 私有化与本地部署 · 14
 3. **可复现**：所有命令、过滤表达式、输出片段都来自真实工具，可直接照跑。
 4. **不越权**：本教程只讲**检测与研判**，不提供攻击载荷库；案例用靶场与模拟流量。
 
+## 数据集与可运行脚本
+
+仓库附带脱敏数据集与三个**可离线运行**的脚本（无需 API/网络即可跑通），把第 06/07/14 章的方法落成代码：
+
+- `dataset/sample_alerts.jsonl`：28 条脱敏告警，覆盖 SQLi / XSS / SSRF / 命令注入 / 路径遍历 / 开放重定向 / WebShell / C2 Beacon / DNS 隧道 / 钓鱼 / SMB 横向 / RDP 爆破 / 信息泄露 / CORS（字段对齐第 12 章 ECS 思路）
+- `dataset/golden_set.json`：15 条**已知结论**的黄金集（verdict / IOC / ATT&CK 映射），用于评测研判器质量
+- `scripts/desensitize.py`：日志脱敏（私有/公网 IP、邮箱、凭证、云/API Key、域名 -> 占位符），喂 AI 前用（第 06 章）
+- `scripts/triage_cluster.py`：告警聚类降噪，按来源 IP 聚成“事件”、按可疑度排 Top-K（第 07 章）
+- `scripts/golden_eval.py`：黄金集评测。默认用内置**规则研判器**全离线跑通（15/15）；设置 `OPENAI_BASE_URL` 即切换为本地/兼容 LLM 研判器（第 13/14 章）
+
+```powershell
+python scripts/golden_eval.py                  # 默认规则研判器，全离线，输出 precision/recall
+python scripts/triage_cluster.py --top 12      # 28 条告警 -> 6 个聚类，按可疑度排序
+cat raw.log | python scripts/desensitize.py    # 脱敏后喂模型
+# 用本地模型评测（需 Ollama/vLLM）：
+$env:OPENAI_BASE_URL="http://localhost:11434/v1"; $env:OPENAI_MODEL="qwen2.5:32b"
+python scripts/golden_eval.py
+```
+
+> 数据集均为**人工构造的脱敏样本**（INT_/EXT_ 占位、example.com、`<redacted>`），不含任何真实凭据或生产数据。
+
 ---
 
 仓库：https://github.com/kwekre/ai-alert-triage
